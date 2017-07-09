@@ -10,9 +10,12 @@
   Dependencies:
     * Bluetooth, 0.22
   Description:
-    O código faz a conexão com o arduíno e executa funções básicas
-    como ir para frente, ir para trás, utilizando as configurações
-    atuais do robô (determinadas na penúltima aula 28/06/2017).
+    O código faz a conexão com o arduíno via bluetooth
+    e executa funções básicas como ir para frente, ir
+    para trás, utilizando as configurações atuais do robô
+    (determinadas na penúltima aula 28/06/2017). É possível,
+    assim, controlar o movimento do arduíno pelo celular.
+    
 */
 
 #include <SoftwareSerial.h>

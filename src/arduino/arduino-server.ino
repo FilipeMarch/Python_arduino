@@ -60,8 +60,8 @@ volatile int contador_direita = 0;
 volatile int contador_esquerda = 0;
 
 // Definir velocidades
-int velocidadeDireita  = 100;
-int velocidadeEsquerda = 100;
+int velocidadeDireita  = 50;
+int velocidadeEsquerda = 50;
 
 //Definindo pinos conectados ao RX e TX do bluetooth
 const int rxpin = 1;
@@ -108,7 +108,7 @@ void loop() {
     ACELERA_ESQUERDA(velocidadeEsquerda);
     IR_PARA_FRENTE();
 
-    motores = "esquerda e direita";
+    motores = "norte";
 
   }
 
@@ -119,30 +119,50 @@ void loop() {
     ACELERA_ESQUERDA(velocidadeEsquerda);
     IR_PARA_TRAS();
 
-    motores = "esquerda e direita ré";
+    motores = "sul";
     
   }
 
-  //Leste
+  //Nordeste
   else if (comando == 'l') {
 
     ACELERA_DIREITA(velocidadeDireita);
     IR_PARA_FRENTE_DIREITA();
 
-    motores = "direita";
+    motores = "nordeste";
     
     }
      
-  //Oeste
+  //Noroeste
   else if (comando == 'o') {
 
     ACELERA_ESQUERDA(velocidadeEsquerda);
     IR_PARA_FRENTE_ESQUERDA();
 
-    motores = "esquerda";
+    motores = "noroeste";
+    
+  }
+  
+  //Sudeste
+  else if (comando == 'm') {
+
+    ACELERA_ESQUERDA(velocidadeEsquerda);
+    IR_PARA_TRAS_ESQUERDA();
+
+    motores = "sudeste";
     
   }
 
+  //Sudoeste
+  else if (comando == 'n') {
+
+    ACELERA_DIREITA(velocidadeEsquerda);
+    IR_PARA_TRAS_DIREITA();
+
+    motores = "sudoeste";
+    
+  }  
+  
   //Freio
   else if (comando == 'f') {
     
@@ -153,7 +173,7 @@ void loop() {
   //Acelerar 
   else if (comando == 'a') {
     
-    if (motores == "esquerda e direita") {
+    if (motores == "norte") {
           
             velocidadeDireita = velocidadeDireita + 10;
             velocidadeEsquerda = velocidadeEsquerda + 10;
@@ -163,7 +183,7 @@ void loop() {
                
     } 
 
-    if (motores == "esquerda e direita ré") {
+    if (motores == "sul") {
           
             velocidadeDireita = velocidadeDireita + 10;
             velocidadeEsquerda = velocidadeEsquerda + 10;
@@ -176,7 +196,7 @@ void loop() {
     
 
     
-    if (motores == "direita") {
+    if (motores == "nordeste") {
           
             velocidadeDireita = velocidadeDireita + 10;
             ACELERA_DIREITA(velocidadeDireita);
@@ -184,14 +204,32 @@ void loop() {
                
     } 
     
-    if (motores == "esquerda") {
+    if (motores == "noroeste") {
 
             velocidadeEsquerda = velocidadeEsquerda + 10;
             ACELERA_ESQUERDA(velocidadeEsquerda);
             IR_PARA_FRENTE_ESQUERDA();
       
     }
+
+    if (motores == "sudeste") {
+
+            velocidadeEsquerda = velocidadeEsquerda + 10;
+            ACELERA_ESQUERDA(velocidadeEsquerda);
+            IR_PARA_TRAS_ESQUERDA();
+      
+    }
+
+    if (motores == "sudoeste") {
+
+            velocidadeEsquerda = velocidadeEsquerda + 10;
+            ACELERA_DIREITA(velocidadeEsquerda);
+            IR_PARA_TRAS_DIREITA();
+      
+    }
+
     
+
     //Se continuar segurando por 0,5 segundo, ele continua acelerando
     delay(500);
       

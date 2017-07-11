@@ -60,8 +60,8 @@ volatile int contador_direita = 0;
 volatile int contador_esquerda = 0;
 
 // Definir velocidades
-int velocidadeDireita  = 150;
-int velocidadeEsquerda = 150;
+int velocidadeDireita  = 100;
+int velocidadeEsquerda = 100;
 
 //Definindo pinos conectados ao RX e TX do bluetooth
 const int rxpin = 1;
@@ -69,6 +69,7 @@ const int txpin = 0;
 
 //Definindo um caractere para ser lido pelo arduíno
 char comando = '.';
+String motores = "opa opa";
 
 //Conectando...
 SoftwareSerial bluetooth(rxpin, txpin);
@@ -107,6 +108,8 @@ void loop() {
     ACELERA_ESQUERDA(velocidadeEsquerda);
     IR_PARA_FRENTE();
 
+    motores = "esquerda e direita";
+
   }
 
   //Sul
@@ -115,6 +118,8 @@ void loop() {
     ACELERA_DIREITA(velocidadeDireita);
     ACELERA_ESQUERDA(velocidadeEsquerda);
     IR_PARA_TRAS();
+
+    motores = "esquerda e direita ré";
     
   }
 
@@ -123,6 +128,8 @@ void loop() {
 
     ACELERA_DIREITA(velocidadeDireita);
     IR_PARA_FRENTE_DIREITA();
+
+    motores = "direita";
     
     }
      
@@ -131,6 +138,8 @@ void loop() {
 
     ACELERA_ESQUERDA(velocidadeEsquerda);
     IR_PARA_FRENTE_ESQUERDA();
+
+    motores = "esquerda";
     
   }
 
@@ -141,8 +150,57 @@ void loop() {
       
     }
 
-   delay(10);
-}
+  //Acelerar 
+  else if (comando == 'a') {
+    
+    if (motores == "esquerda e direita") {
+          
+            velocidadeDireita = velocidadeDireita + 10;
+            velocidadeEsquerda = velocidadeEsquerda + 10;
+            ACELERA_DIREITA(velocidadeDireita);
+            ACELERA_ESQUERDA(velocidadeEsquerda);
+            IR_PARA_FRENTE();
+               
+    } 
+
+    if (motores == "esquerda e direita ré") {
+          
+            velocidadeDireita = velocidadeDireita + 10;
+            velocidadeEsquerda = velocidadeEsquerda + 10;
+            ACELERA_DIREITA(velocidadeDireita);
+            ACELERA_ESQUERDA(velocidadeEsquerda);
+            IR_PARA_TRAS();
+               
+    } 
+
+    
+
+    
+    if (motores == "direita") {
+          
+            velocidadeDireita = velocidadeDireita + 10;
+            ACELERA_DIREITA(velocidadeDireita);
+            IR_PARA_FRENTE_DIREITA();
+               
+    } 
+    
+    if (motores == "esquerda") {
+
+            velocidadeEsquerda = velocidadeEsquerda + 10;
+            ACELERA_ESQUERDA(velocidadeEsquerda);
+            IR_PARA_FRENTE_ESQUERDA();
+      
+    }
+    
+    //Se continuar segurando por 0,5 segundo, ele continua acelerando
+    delay(500);
+      
+    }
+      
+    
+    delay(10);
+      
+    }
 
 void contadorDireita() {
   contador_direita++;

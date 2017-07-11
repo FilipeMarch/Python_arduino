@@ -14,7 +14,7 @@
     e executa funções básicas como ir para frente, ir
     para trás, utilizando as configurações atuais do robô
     (determinadas na penúltima aula 28/06/2017). É possível,
-    assim, controlar o movimento do arduíno pelo celular.
+    também, controlar o movimento do arduíno pelo celular.
     
 */
 
@@ -28,6 +28,7 @@
 
 //  Definição das entradas para os motores de cada lado, observem que alguns robôs precisaram ter os pinos trocados devido aos módulos de comunicação que utilizam.
 //  Vejam os 4 fios unidos da ponte H que são conectados no Arduino para saberem o padrão do robô que vocês tem em mãos.
+
 #define DIRECAO_DIREITA_1 7   //4
 #define DIRECAO_DIREITA_2 8   //7
 
@@ -59,24 +60,23 @@ volatile int contador_direita = 0;
 volatile int contador_esquerda = 0;
 
 // Definir velocidades
-int velocidadeDireita  = 130;
-int velocidadeEsquerda = 130;
+int velocidadeDireita  = 150;
+int velocidadeEsquerda = 150;
 
 //Definindo pinos conectados ao RX e TX do bluetooth
 const int rxpin = 1;
 const int txpin = 0;
 
 //Definindo um caractere para ser lido pelo arduíno
-char k = 'L';
+char comando = '.';
 
 //Conectando...
 SoftwareSerial bluetooth(rxpin, txpin);
 
-void setup()
-{
+void setup() {
+  
   // Configuração da Comunicação Bluetooth
   bluetooth.begin(9600);
-  
 
   // Configuração dos pinos da Ponte H
   pinMode(DIRECAO_DIREITA_1, OUTPUT);
@@ -90,46 +90,64 @@ void setup()
 
   // Funções de Interrupção de cada um dos Encoders
   attachInterrupt(digitalPinToInterrupt(ENCODER_DIREITA), contadorDireita, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(ENCODER_ESQUERDA), contadorEsquerda, CHANGE);
-  
+  attachInterrupt(digitalPinToInterrupt(ENCODER_ESQUERDA), contadorEsquerda, CHANGE); 
 }
 
-void loop()
-{
-  if(bluetooth.available()){
-    k = bluetooth.read();
-  }
-  //Se a letra F for recebida, então ir para frente
-  if( k == 'F' ){
-    ACELERA_DIREITA(velocidadeDireita);
-    ACELERA_ESQUERDA(velocidadeEsquerda);
-    IR_PARA_FRENTE_DIREITA();
-    IR_PARA_FRENTE_ESQUERDA();
-    delay(1000);
-    FREIO();
-    delay(1500);
-
-  //Se a letra T for recebida, então ir para trás (falta editar o código a partir daqui ainda)
-  }
-  else if (k == 'T')  {
-
-    ACELERA_DIREITA(velocidadeDireita);
-    ACELERA_ESQUERDA(velocidadeEsquerda);
-    IR_PARA_FRENTE_DIREITA();
-    IR_PARA_FRENTE_ESQUERDA();
-    delay(1000);
-    FREIO();
-    delay(1500);
+void loop() {
+  
+  if(bluetooth.available()) {
+    comando = bluetooth.read();
     
   }
+  
+  //Se o caractere n for recebido, então ir para o norte
+  else if (comando == 'n') {
+
+    ACELERA_DIREITA(velocidadeDireita);
+    ACELERA_ESQUERDA(velocidadeEsquerda);
+    IR_PARA_FRENTE();
+
+  }
+
+  //Sul
+  else if (comando == 's') {
+
+    ACELERA_DIREITA(velocidadeDireita);
+    ACELERA_ESQUERDA(velocidadeEsquerda);
+    IR_PARA_TRAS();
+    
+  }
+
+  //Leste
+  else if (comando == 'l') {
+
+    ACELERA_DIREITA(velocidadeDireita);
+    IR_PARA_FRENTE_DIREITA();
+    
+    }
+     
+  //Oeste
+  else if (comando == 'o') {
+
+    ACELERA_ESQUERDA(velocidadeEsquerda);
+    IR_PARA_FRENTE_ESQUERDA();
+    
+  }
+
+  //Freio
+  else if (comando == 'f') {
+    
+    FREIO();
+      
+    }
+
    delay(10);
 }
 
-
-void contadorDireita(){
+void contadorDireita() {
   contador_direita++;
 }
 
-void contadorEsquerda(){
+void contadorEsquerda() {
   contador_esquerda++;
 }

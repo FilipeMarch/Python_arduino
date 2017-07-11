@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jul  9 02:47:55 2017
+Created on Mon Jul 10 15:48:07 2017
 
 @author: filipemarch
 """
@@ -27,7 +27,7 @@ for dispositivo in dispositivos_proximos:
 selecao = int(input("> ")) - 1
 
 #Avisando qual dispositivo selecionado
-print ("You have selected", bluetooth.lookup_name(dispositivos_proximos[selecao]))
+print ("Você selecionou ", bluetooth.lookup_name(dispositivos_proximos[selecao]))
 
 #Salvando o endereço bluetooth do dispositivo selecionado
 bd_addr = dispositivos_proximos[selecao]
@@ -35,65 +35,39 @@ bd_addr = dispositivos_proximos[selecao]
 #Porta estabelecida para conexão
 port = 1
 
-
-class Application(Frame):
+#Conectando ao dispositivo bluetooth
+sock = bluetooth.BluetoothSocket( bluetooth.RFCOMM )
+sock.connect((bd_addr, port))    
     
-    #Instanciando um objeto da classe bluetooth
-    sock = bluetooth.BluetoothSocket( bluetooth.RFCOMM )
-
-    #Função para desconectar
-    def disconnect(self):
-        self.sock.close()
-        
-    #Função que faz o arduíno andar para frente
-    def para_frente(self):
-        data = "F"
-        self.sock.send(data)
-        
-    #Função que faz o arduíno andar para trás
-    def para_tras(self):
-        data = "T"
-        self.sock.send(data)
-
-    #Criação de interface gráfica para controle do arduíno através de botões
-    #numa aplicação
-    def createWidgets(self):
-        self.QUIT = Button(self)
-        self.QUIT["text"] = "QUIT"
-        self.QUIT["fg"]   = "red"
-        self.QUIT["command"] =  self.quit
-
-        self.QUIT.pack({"side": "left"})
-
-        self.disconnectFrom = Button(self)
-        self.disconnectFrom["text"] = "Disconnect"
-        self.disconnectFrom["fg"]   = "darkgrey"
-        self.disconnectFrom["command"] =  self.disconnect
-
-        self.disconnectFrom.pack({"side": "left"})
-
-        self.turnOn = Button(self)
-        self.turnOn["text"] = "Para_frente",
-        self.turnOn["fg"] = "green"
-        self.turnOn["command"] = self.para_frente
-
-        self.turnOn.pack({"side": "left"})
-
-        self.turnOff = Button(self)
-        self.turnOff["text"] = "Para_tras"
-        self.turnOff["fg"] = "red"
-        self.turnOff["command"] = self.para_tras
-
-        self.turnOff.pack({"side": "left"})
-
-    def __init__(self, master=None):
-        #Conectando ao dispositivo bluetooth
-        self.sock.connect((bd_addr, port))
-        Frame.__init__(self, master)
-        self.pack()
-        self.createWidgets()
-
+ 
+running = False
 root = Tk()
-app = Application(master=root)
-app.mainloop()
-root.destroy()
+jobid = None
+
+#Iniciando o motor...
+def start_motor(direction):
+    
+    sock.send('f')
+    move(direction)
+
+#Parando o motor após largar o click do botão
+def stop_motor():
+    sock.send('f')
+    global jobid
+    root.after_cancel(jobid)
+    
+#Continua enviando mensagens ao arduíno enquanto estiver clicando no botão de direção
+def move(direction):
+    global jobid
+    sock.send(direction)
+    jobid = root.after(100, move, direction)
+
+#Criando os botões de direção e definindo o que acontece enquanto se clica e ao largar o clique
+for direction in ("norte", "sul", "leste", "oeste"):
+    button = Button(root, text=direction)
+    button.pack(side=LEFT)
+    button.bind('<ButtonPress-1>', lambda event, direction=direction[0]: start_motor(direction))
+    button.bind('<ButtonRelease-1>', lambda event: stop_motor())
+
+#Tchãn rãm...
+root.mainloop()

@@ -144,7 +144,7 @@ void loop() {
   }
   
   //Sudeste
-  else if (comando == 'm') {
+  else if (comando == 'h') {
 
     ACELERA_ESQUERDA(velocidadeEsquerda);
     IR_PARA_TRAS_ESQUERDA();
@@ -154,7 +154,7 @@ void loop() {
   }
 
   //Sudoeste
-  else if (comando == 'n') {
+  else if (comando == 'j') {
 
     ACELERA_DIREITA(velocidadeEsquerda);
     IR_PARA_TRAS_DIREITA();

@@ -38,7 +38,6 @@ port = 1
 sock = bluetooth.BluetoothSocket( bluetooth.RFCOMM )
 sock.connect((bd_addr, port))    
     
- 
 running = False
 root = Tk()
 jobid = None
@@ -47,7 +46,6 @@ jobid = None
 def desconectar(x):
     sock.close()
     
-
 #Iniciando o motor...
 def start_motor(direction):
     sock.send('f')
@@ -81,7 +79,6 @@ def Interface():
         
     #Tchãn rãm...
     root.mainloop()
-
 
 resposta = input('Digite 1 para abrir uma interface gráfica ou 2 para abrir o terminal\n> ')
 

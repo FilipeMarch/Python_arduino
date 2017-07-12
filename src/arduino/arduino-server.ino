@@ -60,24 +60,22 @@ volatile int contador_direita = 0;
 volatile int contador_esquerda = 0;
 
 // Definir velocidades
-int velocidadeDireita  = 50;
-int velocidadeEsquerda = 50;
-
-//Definindo pinos conectados ao RX e TX do bluetooth
-const int rxpin = 1;
-const int txpin = 0;
+int velocidadeDireita  = 150;
+int velocidadeEsquerda = 150;
 
 //Definindo um caractere para ser lido pelo arduíno
-char comando = '.';
-String motores = "opa opa";
+//String comando = "aa";
+//String motores = "opa opa";
+
+int valor;
 
 //Conectando...
-SoftwareSerial bluetooth(rxpin, txpin);
+//SoftwareSerial bluetooth(rxpin, txpin);
 
 void setup() {
   
   // Configuração da Comunicação Bluetooth
-  bluetooth.begin(9600);
+  Serial.begin(9600);
 
   // Configuração dos pinos da Ponte H
   pinMode(DIRECAO_DIREITA_1, OUTPUT);
@@ -92,153 +90,123 @@ void setup() {
   // Funções de Interrupção de cada um dos Encoders
   attachInterrupt(digitalPinToInterrupt(ENCODER_DIREITA), contadorDireita, CHANGE);
   attachInterrupt(digitalPinToInterrupt(ENCODER_ESQUERDA), contadorEsquerda, CHANGE); 
+  
 }
 
 void loop() {
+
+  //Se há comunicação...
+  if(Serial.available()>0) {
+    
+    comando = Serial.readStringUntil('\n');
+    //Valor é o valor inteiro após o sinal de igualdade
+    valor = atoi(&comando[comando.indexOf('=')+1]);
+    
+  }
+
+  //Lidando com os "Sets"
+  if (comando.startsWith("S0")) {
+
+      if (valor == 1) {
+
+        //Freia primeiro, pois caso a roda já esteja girando em outro sentido, o código não tem efeito
+        FREIO_ESQUERDA();
+        ACELERA_ESQUERDA(velocidadeEsquerda);
+        IR_PARA_FRENTE_ESQUERDA();
   
-  if(bluetooth.available()) {
-    comando = bluetooth.read();
-    
-  }
+      }
   
-  //Se o caractere n for recebido, então ir para o norte
-  else if (comando == 'n') {
-
-    ACELERA_DIREITA(velocidadeDireita);
-    ACELERA_ESQUERDA(velocidadeEsquerda);
-    IR_PARA_FRENTE();
-
-    motores = "norte";
-
+      else if (valor == 0) {
+  
+        FREIO_ESQUERDA();
+        
+      }
+  
+      else if (valor == -1) {
+        
+        FREIO_ESQUERDA();
+        ACELERA_ESQUERDA(velocidadeEsquerda);
+        IR_PARA_TRAS_ESQUERDA();
+        
+      }
   }
 
-  //Sul
-  else if (comando == 's') {
+  if (comando.startsWith("S1")) {
 
-    ACELERA_DIREITA(velocidadeDireita);
-    ACELERA_ESQUERDA(velocidadeEsquerda);
-    IR_PARA_TRAS();
+      if (valor == 1) {
 
-    motores = "sul";
-    
+          FREIO_DIREITA();
+          ACELERA_DIREITA(velocidadeDireita);
+          IR_PARA_FRENTE_DIREITA();
+  
+      }
+  
+      else if (valor == 0) {
+  
+        FREIO_DIREITA();
+        
+        }
+  
+      else if (valor = -1) {
+        
+        FREIO_DIREITA();
+        ACELERA_DIREITA(velocidadeDireita);
+        IR_PARA_TRAS_DIREITA();
+        
+      }  
   }
 
-  //Nordeste
-  else if (comando == 'l') {
+  if (comando.startsWith("S2")) {
 
-    ACELERA_DIREITA(velocidadeDireita);
-    IR_PARA_FRENTE_DIREITA();
+    //Verificar primeiro em qual sentido a roda está girando
+    if (digitalRead(DIRECAO_ESQUERDA_1) == HIGH) {
 
-    motores = "nordeste";
-    
+        ACELERA_ESQUERDA(valor);
+        IR_PARA_FRENTE_ESQUERDA();
+        
     }
-     
-  //Noroeste
-  else if (comando == 'o') {
+        
+    else if (digitalRead(DIRECAO_ESQUERDA_1) == HIGH) {
 
-    ACELERA_ESQUERDA(velocidadeEsquerda);
-    IR_PARA_FRENTE_ESQUERDA();
-
-    motores = "noroeste";
-    
-  }
-  
-  //Sudeste
-  else if (comando == 'h') {
-
-    ACELERA_ESQUERDA(velocidadeEsquerda);
-    IR_PARA_TRAS_ESQUERDA();
-
-    motores = "sudeste";
-    
+      ACELERA_ESQUERDA(valor);
+      IR_PARA_TRAS_ESQUERDA();
+      
+      }
   }
 
-  //Sudoeste
-  else if (comando == 'j') {
+  else if (comando.startsWith("S3")) {
+      
+    if (digitalRead(DIRECAO_DIREITA_1) == HIGH) {
 
-    ACELERA_DIREITA(velocidadeEsquerda);
-    IR_PARA_TRAS_DIREITA();
+        ACELERA_DIREITA(valor);
+        IR_PARA_FRENTE_DIREITA();
+        
+    }
+        
+    else if (digitalRead(DIRECAO_DIREITA_2) == HIGH) {
 
-    motores = "sudoeste";
-    
+      ACELERA_DIREITA(valor);
+      IR_PARA_TRAS_DIREITA();
+      
+      } 
   }  
   
-  //Freio
-  else if (comando == 'f') {
+  //Lidando com os "Gets"
+  if (comando.startsWith("G")) {
+
+    requisicao = digitalRead(valor);
     
-    FREIO();
+  }
+
+  //Lidando com mensagens de debug
+  if (comando.startsWith("M")) {
+
+    Serial.println("Tela azul da morte");
+  }
+  
+  delay(10);
       
-    }
-
-  //Acelerar 
-  else if (comando == 'a') {
-    
-    if (motores == "norte") {
-          
-            velocidadeDireita = velocidadeDireita + 10;
-            velocidadeEsquerda = velocidadeEsquerda + 10;
-            ACELERA_DIREITA(velocidadeDireita);
-            ACELERA_ESQUERDA(velocidadeEsquerda);
-            IR_PARA_FRENTE();
-               
-    } 
-
-    if (motores == "sul") {
-          
-            velocidadeDireita = velocidadeDireita + 10;
-            velocidadeEsquerda = velocidadeEsquerda + 10;
-            ACELERA_DIREITA(velocidadeDireita);
-            ACELERA_ESQUERDA(velocidadeEsquerda);
-            IR_PARA_TRAS();
-               
-    } 
-
-    
-
-    
-    if (motores == "nordeste") {
-          
-            velocidadeDireita = velocidadeDireita + 10;
-            ACELERA_DIREITA(velocidadeDireita);
-            IR_PARA_FRENTE_DIREITA();
-               
-    } 
-    
-    if (motores == "noroeste") {
-
-            velocidadeEsquerda = velocidadeEsquerda + 10;
-            ACELERA_ESQUERDA(velocidadeEsquerda);
-            IR_PARA_FRENTE_ESQUERDA();
-      
-    }
-
-    if (motores == "sudeste") {
-
-            velocidadeEsquerda = velocidadeEsquerda + 10;
-            ACELERA_ESQUERDA(velocidadeEsquerda);
-            IR_PARA_TRAS_ESQUERDA();
-      
-    }
-
-    if (motores == "sudoeste") {
-
-            velocidadeEsquerda = velocidadeEsquerda + 10;
-            ACELERA_DIREITA(velocidadeEsquerda);
-            IR_PARA_TRAS_DIREITA();
-      
-    }
-
-    
-
-    //Se continuar segurando por 0,5 segundo, ele continua acelerando
-    delay(500);
-      
-    }
-      
-    
-    delay(10);
-      
-    }
+  }
 
 void contadorDireita() {
   contador_direita++;

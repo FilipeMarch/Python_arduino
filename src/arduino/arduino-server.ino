@@ -166,7 +166,7 @@ void loop() {
         
     }
         
-    else if (digitalRead(DIRECAO_ESQUERDA_1) == HIGH) {
+    else if (digitalRead(DIRECAO_ESQUERDA_2) == HIGH) {
 
       ACELERA_ESQUERDA(valor);
       IR_PARA_TRAS_ESQUERDA();

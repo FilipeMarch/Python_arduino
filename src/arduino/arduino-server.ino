@@ -174,7 +174,7 @@ void loop() {
       }
   }
 
-  else if (comando.startsWith("S3")) {
+  if (comando.startsWith("S3")) {
       
     if (digitalRead(DIRECAO_DIREITA_1) == HIGH) {
 

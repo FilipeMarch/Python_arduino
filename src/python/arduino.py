@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jul 10 15:48:07 2017
-
 @author: filipemarch
 """
 
@@ -44,9 +43,13 @@ running = False
 root = Tk()
 jobid = None
 
+#Para remover o pareamento
+def desconectar(x):
+    sock.close()
+    
+
 #Iniciando o motor...
 def start_motor(direction):
-    
     sock.send('f')
     move(direction)
 
@@ -59,15 +62,33 @@ def stop_motor():
 #Continua enviando mensagens ao arduíno enquanto estiver clicando no botão de direção
 def move(direction):
     global jobid
+    print(direction)
     sock.send(direction)
     jobid = root.after(100, move, direction)
 
 #Criando os botões de direção e definindo o que acontece enquanto se clica e ao largar o clique
-for direction in ("norte", "sul", "leste", "oeste"):
-    button = Button(root, text=direction)
-    button.pack(side=LEFT)
-    button.bind('<ButtonPress-1>', lambda event, direction=direction[0]: start_motor(direction))
-    button.bind('<ButtonRelease-1>', lambda event: stop_motor())
+def Interface():
+    for direction in ("norte", "sul", "leste", "oeste"):
+        button = Button(root, text=direction)
+        button.pack(side=LEFT)
+        button.bind('<ButtonPress-1>', lambda event, direction=direction+'\n': start_motor(direction))
+        button.bind('<ButtonRelease-1>', lambda event: stop_motor())
+        
+        button = Button(root, text='desconectar')
+        button.pack(side=LEFT)
+        button.bind('<ButtonPress-1>', lambda event, x='d': desconectar(x))
+        button.bind('<ButtonRelease-1>', lambda event: stop_motor())
+        
+    #Tchãn rãm...
+    root.mainloop()
 
-#Tchãn rãm...
-root.mainloop()
+
+resposta = input('Digite 1 para abrir uma interface gráfica ou 2 para abrir o terminal\n> ')
+
+if resposta == '1':
+    Interface()
+      
+else:
+    while True:
+        resposta = input('')
+        sock.send(resposta)
